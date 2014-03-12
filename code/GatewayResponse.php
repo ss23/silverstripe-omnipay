@@ -65,11 +65,16 @@ class GatewayResponse{
 		return $this->redirect;
 	}
 
-		/**
+	/**
 	 * Do a redirect, using the current controller
 	 */
 	public function redirect() {
-		Controller::curr()->redirect($this->getRedirectURL());
+		$redirectOmnipayResponse = $this->response->getRedirectResponse();
+		if($redirectOmnipayResponse instanceof Symfony\Component\HttpFoundation\RedirectResponse) {
+			return Controller::curr()->redirect($redirectOmnipayResponse->getTargetUrl());	
+		} else {
+			return (string)$redirectOmnipayResponse->getContent();
+		}		
 	}
 
 }

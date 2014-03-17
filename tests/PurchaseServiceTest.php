@@ -199,7 +199,7 @@ class PurchaseServiceTest extends PaymentTest {
 		$payment = $this->payment;
 		$service = PurchaseService::create(
 				$payment->init("PxPayGateway", 100, "NZD")
-			)->setReturnUrl("complete");
+			)->setSuccessUrl("complete");
 
 		$this->setExpectedException("RuntimeException");
 		$result = $service->purchase();

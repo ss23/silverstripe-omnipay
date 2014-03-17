@@ -6,7 +6,7 @@ class PurchaseService extends PaymentService{
 
 	/**
 	 * Attempt to make a payment
-	 * @param  array $data returnUrl/cancelUrl + customer creditcard
+	 * @param  array $data successUrl/failureUrl + customer creditcard
 	 * and billing/shipping details.
 	 * @return ResponseInterface omnipay's response class,
 	 * specific to the chosen gateway.
@@ -19,12 +19,14 @@ class PurchaseService extends PaymentService{
 			$this->payment->write();
 		}
 		$message = $this->createMessage('PurchaseRequest');
-		$message->SuccessURL = isset($data['returnUrl']) ?
-							$data['returnUrl'] :
-							$this->returnurl;
-		$message->FailureURL = isset($data['cancelUrl']) ?
-							$data['cancelUrl'] :
-							$this->cancelurl;
+		
+		// User facing URLs which are redirected to *after* the gateway endpoint URLs
+		$message->SuccessURL = isset($data['successUrl']) ?
+							$data['successUrl'] :
+							$this->successUrl;
+		$message->FailureURL = isset($data['failureUrl']) ?
+							$data['failureUrl'] :
+							$this->failureUrl;
 		$message->write();
 		$request = $this->oGateway()->purchase(array_merge(
 			$data,
@@ -34,8 +36,8 @@ class PurchaseService extends PaymentService{
 				'currency' => $this->payment->MoneyCurrency,
 				'transactionId' => $message->Identifier,
 				'clientIp' => isset($data['clientIp']) ? $data['clientIp'] : null,
-				'returnUrl' => PaymentGatewayController::get_return_url($message, 'complete'),
-				'cancelUrl' => PaymentGatewayController::get_return_url($message, 'cancel')
+				'returnUrl' => PaymentGatewayController::get_redirect_url($message, 'complete'),
+				'cancelUrl' => PaymentGatewayController::get_redirect_url($message, 'cancel')
 			)
 		));
 		$this->logToFile($request->getParameters(), "PurchaseRequest_post");

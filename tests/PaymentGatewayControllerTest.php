@@ -8,7 +8,7 @@ class PaymentGatewayControllerTest extends PaymentTest{
 
 	public function testReturnUrlGeneration() {
 		$transaction = $this->objFromFixture('GatewayMessage', 'message1');
-		$url = PaymentGatewayController::get_return_url($transaction, 'action');
+		$url = PaymentGatewayController::get_redirect_url($transaction, 'action');
 		$this->assertEquals(
 			Director::absoluteURL("paymentendpoint/UNIQUEHASH23q5123tqasdf/action"),
 			$url,

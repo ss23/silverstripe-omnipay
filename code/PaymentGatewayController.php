@@ -21,7 +21,7 @@ class PaymentGatewayController extends Controller{
 	 * @param  string             $returnurl   the application url to re-redirect to
 	 * @return string                          the resulting redirect url
 	 */
-	public static function get_return_url(GatewayMessage $message, $status = 'complete') {
+	public static function get_redirect_url(GatewayMessage $message, $status = 'complete') {
 		return Director::absoluteURL(
 			Controller::join_links(
 				'paymentendpoint', //as defined in _config/routes.yml

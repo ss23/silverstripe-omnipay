@@ -18,11 +18,15 @@ use Omnipay\Common\Message\AbstractRequest;
 abstract class PaymentService extends Object{
 
 	private static $httpclient;
+	
 	private static $httprequest;
 
 	protected $payment;
-	protected $returnurl;
-	protected $cancelurl;
+	
+	protected $successUrl;
+	
+	protected $failureUrl;
+	
 	protected $response;
 
 	public function __construct(Payment $payment) {
@@ -34,19 +38,19 @@ abstract class PaymentService extends Object{
 	 * This is not a database field.
 	 * @return string the url
 	 */
-	public function getReturnUrl() {
-		return $this->returnurl;
+	public function getSuccessUrl() {
+		return $this->successUrl;
 	}
 
 	/**
 	 * Set the url to redirect to after payment is made/attempted.
-	 * This function also populates the cancel url, if it is empty.
+	 * This function also populates the failure url, if it is empty.
 	 * @return PaymentService this object for chaining
 	 */
-	public function setReturnUrl($url) {
-		$this->returnurl = $url;
-		if (!$this->cancelurl) {
-			$this->cancelurl = $url;
+	public function setSuccessUrl($url) {
+		$this->successUrl = $url;
+		if (!$this->failureUrl) {
+			$this->failureUrl = $url;
 		}
 
 		return $this;
@@ -55,16 +59,16 @@ abstract class PaymentService extends Object{
 	/**
 	 * @return string cancel url
 	 */
-	public function getCancelUrl() {
-		return $this->cancelurl;
+	public function getFailureUrl() {
+		return $this->failureUrl;
 	}
 
 	/**
 	 * Set the url to redirect to after payment is cancelled
 	 * @return PaymentService this object for chaining
 	 */
-	public function setCancelUrl($url) {
-		$this->cancelurl = $url;
+	public function setFailureUrl($url) {
+		$this->failureUrl = $url;
 
 		return $this;
 	}
@@ -75,13 +79,13 @@ abstract class PaymentService extends Object{
 	public function getRedirectURL() {
 		if ($this->response) {
 			if ($this->response->isSuccessful()) {
-				return $this->getReturnUrl();
+				return $this->getSuccessUrl();
 			} elseif ($this->response->isRedirect()) {
 				return $this->response->getRedirectUrl();
 			}
 		}
 
-		return $this->getCancelUrl();
+		return $this->getFailureUrl();
 	}
 
 	/**

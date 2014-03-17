@@ -139,8 +139,8 @@ Using function chaining, we can create and configure a new payment object, and s
 ```php
     $payment = Payment::create()->init("PxPayGateway", 100, "NZD");
     $response = PurchaseService::create($payment)
-        ->setReturnUrl($this->Link('complete')."/".$donation->ID)
-        ->setCancelUrl($this->Link()."?message=payment cancelled")
+        ->setSuccessUrl($this->Link('complete')."/".$donation->ID)
+        ->setFailureUrl($this->Link()."?message=payment cancelled")
         ->purchase($form->getData());
     $response->redirect();
 ```

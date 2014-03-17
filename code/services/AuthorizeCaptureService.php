@@ -4,7 +4,7 @@ class AuthorizeCaptureService extends PaymentService{
 
 	/**
 	 * Initiate the authorisation process for on-site and off-site gateways.
-	 * @param  array $data returnUrl/cancelUrl + customer creditcard and billing/shipping details.
+	 * @param  array $data successUrl/failureUrl + customer creditcard and billing/shipping details.
 	 * @return ResponseInterface omnipay's response class, specific to the chosen gateway.
 	 */
 	public function authorize($data = array()) {

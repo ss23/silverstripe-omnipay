@@ -35,6 +35,7 @@ class PurchaseService extends PaymentService{
 				'transactionId' => $message->Identifier,
 				'clientIp' => isset($data['clientIp']) ? $data['clientIp'] : null,
 				'returnUrl' => PaymentGatewayController::get_return_url($message, 'complete'),
+				'notifyUrl' => PaymentGatewayController::get_return_url($message, 'notify'),
 				'cancelUrl' => PaymentGatewayController::get_return_url($message, 'cancel')
 			)
 		));
@@ -82,10 +83,11 @@ class PurchaseService extends PaymentService{
 	 * This is ususally only called by PaymentGatewayController.
 	 * @return PaymentResponse encapsulated response info
 	 */
-	public function completePurchase() {
+	public function completePurchase($data = array()) {
 		$gatewayresponse = $this->createGatewayResponse();
-		$request = $this->oGateway()->completePurchase(array(
-			'amount' => (float) $this->payment->MoneyAmount
+		$request = $this->oGateway()->completePurchase(array_merge(
+			$data,
+			array('amount' => (float) $this->payment->MoneyAmount)
 		));
 		$this->createMessage('CompletePurchaseRequest', $request);
 		$response = null;

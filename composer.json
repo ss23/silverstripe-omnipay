@@ -9,7 +9,9 @@
 		"omnipay/omnipay": "1.1.x"
 	},
 	"require-dev": {
-		"guzzle/plugin-mock": "~3.1"
+		"guzzle/plugin-mock": "~3.1",
+		"omnipay/paymentexpress": "~2.0",
+		"omnipay/dummy": "~2.0"
 	},
 	"extra": {
 		"installer-name": "omnipay"

@@ -93,6 +93,7 @@ class PurchaseService extends PaymentService{
 		$response = null;
 		try {
 			$response = $this->response = $request->send();
+			$gatewayresponse->setOmnipayResponse($response);
 			if ($response->isSuccessful()) {
 				$this->createMessage('PurchasedResponse', $response);
 				$this->payment->Status = 'Captured';
@@ -101,7 +102,6 @@ class PurchaseService extends PaymentService{
 			} else {
 				$this->createMessage('CompletePurchaseError', $response);
 			}
-			$gatewayresponse->setOmnipayResponse($response);
 		} catch (Omnipay\Common\Exception\OmnipayException $e) {
 			$this->createMessage("CompletePurchaseError", $e);
 		}

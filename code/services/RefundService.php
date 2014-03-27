@@ -34,14 +34,13 @@ class RefundService extends PaymentService{
 			//update payment model
 			if ($response->isSuccessful()) {
 				//successful payment
-				$this->createMessage('RefundResponse', $response);
+				$this->createMessage('RefundedResponse', $response);
 				$this->payment->Status = 'Refunded';
 				$gatewayresponse->setMessage('Payment refunded');
 				$this->payment->extend('onRefunded', $gatewayresponse);
 			} else {
 				//handle error
-				// todo RefundError?
-//				$this->createMessage('PurchaseError', $response);
+				$this->createMessage('RefundError', $response);
 				$gatewayresponse->setMessage(
 					"Error (".$response->getCode()."): ".$response->getMessage()
 				);

@@ -29,7 +29,7 @@ class PurchaseService extends PaymentService{
 		$request = $this->oGateway()->purchase(array_merge(
 			$data,
 			array(
-				'card' => new CreditCard($data),
+				'card' => $this->getCreditCard($data),
 				'amount' => (float) $this->payment->MoneyAmount,
 				'currency' => $this->payment->MoneyCurrency,
 				'transactionId' => $message->Identifier,
@@ -107,6 +107,13 @@ class PurchaseService extends PaymentService{
 		}
 
 		return $gatewayresponse;
+	}
+
+	/**
+	 * @return \Omnipay\Common\CreditCard
+	 */
+	protected function getCreditCard($data) {
+		return new CreditCard($data);
 	}
 
 }

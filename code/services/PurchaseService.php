@@ -4,6 +4,10 @@ use Omnipay\Common\CreditCard;
 
 class PurchaseService extends PaymentService{
 
+	/**
+	 * Does mostly the same as purchase() except we're calling tokenize()
+	 * on the payment gateway.
+	 */
 	public function tokenize($data = array()) {
 		if ($this->payment->Status !== "Created") {
 			return null; //could be handled better? send payment response?

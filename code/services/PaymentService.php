@@ -17,14 +17,39 @@ use Omnipay\Common\Message\AbstractRequest;
 
 abstract class PaymentService extends Object{
 
+	/**
+	 * @var Guzzle\Http\ClientInterface
+	 */	
 	private static $httpclient;
+	
+	/**
+	 * @var Guzzle\Http\Message\Request
+	 */	
 	private static $httprequest;
 
+	/**
+	 * @var Payment
+	 */
 	protected $payment;
+
+	/**
+	 * @var String
+	 */
 	protected $returnurl;
+	
+	/**
+	 * @var String
+	 */
 	protected $cancelurl;
+	
+	/**
+	 * @var Guzzle\Http\Message\Response
+	 */
 	protected $response;
 
+	/**
+	 * @param Payment
+	 */
 	public function __construct(Payment $payment) {
 		$this->payment = $payment;
 	}
@@ -204,12 +229,20 @@ abstract class PaymentService extends Object{
 		self::$httpclient = $httpClient;
 	}
 
+	public static function get_http_client() {
+		return self::$httpclient;
+	}
+
 	/**
 	 * Set the symphony http request (for testing)
 	 * @param Symfony\Component\HttpFoundation\Request $httpRequest symphony http request for testing
 	 */
 	public static function set_http_request(Symfony\Component\HttpFoundation\Request $httpRequest) {
 		self::$httprequest = $httpRequest;
+	}
+
+	public static function get_http_request() {
+		return self::$httprequest;
 	}
 
 }

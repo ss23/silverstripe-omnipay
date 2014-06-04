@@ -69,6 +69,9 @@ Payment:
     file_logging: 1
     allowed_gateways:
         - 'Dummy'
+    parameters:
+        Paypal_Express:
+            testMode: true
 ---
 Only:
     environment: 'live'
@@ -169,6 +172,14 @@ class ShopPayment extends DataExtension {
 
 }
 ```
+
+## Security
+
+When customizing the payment flow (e.g. subclassing `PaymentForm` or `OrderProcessor`),
+please take care to only pass whitelisted user input to `PurchaseService` and the underlying
+omnipay gateways. The easiest way to ensure no arbitrary data can be injected
+is by using `Form->getData()` rather than acessing `$_REQUEST` directly,
+since this will only return you data for fields originally defined in the form.
 
 ## Debugging payments
 

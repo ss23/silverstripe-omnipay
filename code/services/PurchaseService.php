@@ -53,27 +53,30 @@ class PurchaseService extends PaymentService{
 				//initiate manual payment
 				$this->createMessage('AuthorizedResponse', $response);
 				$this->payment->Status = 'Authorized';
+				$this->payment->write();
 				$gatewayresponse->setMessage("Manual payment authorised");
 			} elseif ($response->isSuccessful()) {
 				//successful payment
 				$this->createMessage('PurchasedResponse', $response);
 				$this->payment->Status = 'Captured';
 				$gatewayresponse->setMessage("Payment successful");
+				$this->payment->write();
 				$this->payment->extend('onCaptured', $gatewayresponse);
 			} elseif ($response->isRedirect()) {
 				// redirect to off-site payment gateway
 				$this->createMessage('PurchaseRedirectResponse', $response);
 				$this->payment->Status = 'Authorized';
+				$this->payment->write();
 				$gatewayresponse->setMessage("Redirecting to gateway");
 			} else {
 				//handle error
 				$this->createMessage('PurchaseError', $response);
 				$this->payment->Status = 'Void';
+				$this->payment->write();
 				$gatewayresponse->setMessage(
 					"Error (".$response->getCode()."): ".$response->getMessage()
 				);
 			}
-			$this->payment->write();
 		} catch (Omnipay\Common\Exception\OmnipayException $e) {
 			$this->createMessage('PurchaseError', $e);
 			$this->payment->Status = 'Void';

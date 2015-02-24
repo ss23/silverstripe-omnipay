@@ -27,10 +27,15 @@ class PaymentGatewayController extends Controller{
 	 * @return string                          the resulting redirect url
 	 */
 	public static function get_return_url(GatewayMessage $message, $status = 'complete') {
-		$baseUrl = Config::inst()->get('PaymentGatewayController', 'base_url');
-		if(!$baseUrl) {
+		// HACK Force custom URL for server-to-server only
+		// in order to respect browser security constraints (can't redirect from https:// to http://)
+		$customBaseUrl = Config::inst()->get('PaymentGatewayController', 'base_url');
+		if($status == 'notify' && $customBaseUrl) {
+			$baseUrl = $customBaseUrl;
+		} else {
 			$baseUrl = Director::absoluteBaseURL();
 		}
+
 		return Controller::join_links(
 			$baseUrl,
 			'paymentendpoint', //as defined in _config/routes.yml

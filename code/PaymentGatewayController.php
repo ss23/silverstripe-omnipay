@@ -15,6 +15,11 @@ class PaymentGatewayController extends Controller{
 	);
 
 	/**
+	 * @var String Absolute base url. Defaults to Director::absoluteURL()
+	 */
+	private static $base_url;
+
+	/**
 	 * Generate an absolute url for gateways to return to, or send requests to.
 	 * @param  GatewayMessage $message message that redirect applies to.
 	 * @param  string             $status      the intended status / action of the gateway
@@ -22,12 +27,15 @@ class PaymentGatewayController extends Controller{
 	 * @return string                          the resulting redirect url
 	 */
 	public static function get_return_url(GatewayMessage $message, $status = 'complete') {
-		return Director::absoluteURL(
-			Controller::join_links(
-				'paymentendpoint', //as defined in _config/routes.yml
-				$message->Identifier,
-				$status
-			)
+		$baseUrl = Config::inst()->get('PaymentGatewayController', 'base_url');
+		if(!$baseUrl) {
+			$baseUrl = Director::absoluteBaseURL();
+		}
+		return Controller::join_links(
+			$baseUrl,
+			'paymentendpoint', //as defined in _config/routes.yml
+			$message->Identifier,
+			$status
 		);
 	}
 

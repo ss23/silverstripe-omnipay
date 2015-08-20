@@ -38,6 +38,20 @@ class PaymentGatewayController extends Controller{
 	 * or allowed to be updated.
 	 */
 	public function index() {
+
+		// we don't want duplicated responses for payment request to the gateway, this could trigger undesired actions
+		// need to change the error handler to catch the user error thrown by the db when trying to write a duplicate in a nicer way
+		set_error_handler(create_function(null, 'throw new Exception("Duplicated response from payment gateway");'), E_ALL);
+		try {
+			$responseMsg = GatewayResponseInventoryMessage::create(
+				array('ResponseIdentifier' => $this->request->param('Identifier') . '-' . $this->request->param('Status'))
+			)->write();
+		} catch(Exception $e) {
+			// if it is a duplicate response, return a 400
+			return $this->httpError(400, $e->getMessage());
+		}
+		restore_error_handler();
+
 		$message = $this->getRequestMessage();
 		if (!$message || !$message->Payment()->exists()) {
 			return $this->httpError(404, _t("Payment.NOTFOUND", "Payment could not be found."));

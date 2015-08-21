@@ -39,15 +39,16 @@ class PaymentGatewayController extends Controller{
 	 */
 	public function index() {
 
-		// we don't want duplicated responses for payment request to the gateway, this could trigger undesired actions
-		// need to change the error handler to catch the user error thrown by the db when trying to write a duplicate in a nicer way
-		set_error_handler(create_function(null, 'throw new Exception("Duplicated response from payment gateway");'), E_ALL);
+		// Avoid processing duplicated responses from the payment gateway for payment requests, this could trigger undesired actions
+		// change the error handler to catch the user error thrown by the db when trying to write a duplicate
+		set_error_handler(create_function(null, 'throw new InvalidGatewayResponseException("Duplicated response from payment gateway");'), E_ALL);
 		try {
-			$responseMsg = GatewayResponseInventoryMessage::create(
+			$responseMsg = GatewayResponseMessageInventory::create(
 				array('ResponseIdentifier' => $this->request->param('Identifier') . '-' . $this->request->param('Status'))
 			)->write();
 		} catch(Exception $e) {
-			// if it is a duplicate response, return a 400
+			// if it is a duplicate response, log it and return a 400
+			SS_Log::log($e->getMessage(), SS_Log::WARN);
 			return $this->httpError(400, $e->getMessage());
 		}
 		restore_error_handler();

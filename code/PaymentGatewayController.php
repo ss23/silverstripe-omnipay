@@ -47,9 +47,21 @@ class PaymentGatewayController extends Controller{
 				array('ResponseIdentifier' => $this->request->param('Identifier') . '-' . $this->request->param('Status'))
 			)->write();
 		} catch(Exception $e) {
-			// if it is a duplicate response, log it and return a 400
-			SS_Log::log($e->getMessage(), SS_Log::WARN);
-			return $this->httpError(400, $e->getMessage());
+
+			// check when was the last time we added a record for this identifier
+			// if the record is OLDER THAN 1 MINUTE, we assume it's a valid retry from the gateway.
+			$identifier = $this->request->param('Identifier') . '-' . $this->request->param('Status');
+			$idem = DB::query("SELECT \"ID\" FROM \"GatewayResponseMessageInventory\" WHERE \"ResponseIdentifier\" = '$identifier' AND \"LastEdited\" > DATE_SUB(NOW(), INTERVAL 1 MINUTE)");
+
+			if($idem->numRecords() > 0) {
+				// the record was updated within the last minute so it must be a duplicate
+				// log it and return a 400
+				SS_Log::log($e->getMessage(), SS_Log::WARN);
+				return $this->httpError(400, $e->getMessage());
+			} else {
+				// otherwise the record is older than 1 minute, update it and continue as usual
+				DB::query("UPDATE \"GatewayResponseMessageInventory\" SET \"LastEdited\" = NOW() WHERE \"ResponseIdentifier\" = '$identifier'");
+			}
 		}
 		restore_error_handler();
 

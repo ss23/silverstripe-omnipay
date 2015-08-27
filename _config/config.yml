@@ -1,0 +1,7 @@
+---
+Name: omnipay
+After: 'framework/*','cms/*'
+---
+
+PaymentGatewayController:
+  valid_response_interval_seconds: 60 

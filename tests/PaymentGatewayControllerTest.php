@@ -70,6 +70,49 @@ class PaymentGatewayControllerTest extends PaymentTest{
 		$this->assertEquals(404, $response->getStatusCode());
 	}
 
+	public function testDuplicateResponse() {
+
+		$this->setMockHttpResponse(
+			'PaymentExpress/Mock/PxPayCompletePurchaseSuccess.txt'
+		);
+		$this->getHttpRequest()->query->replace(array('result' => 'abc123'));
+
+		$response = $this->get("paymentendpoint/ASDFHSADFCACAunknonwhash/complete");
+		$this->assertEquals(302, $response->getStatusCode());
+
+		$response = $this->get("paymentendpoint/ASDFHSADFCACAunknonwhash/complete");
+		$this->assertEquals(400, $response->getStatusCode());
+	}
+
+	public function testNoDuplicateResponse() {
+
+		$this->setMockHttpResponse(
+			'PaymentExpress/Mock/PxPayCompletePurchaseSuccess.txt'
+		);
+		$this->getHttpRequest()->query->replace(array('result' => 'abc123'));
+
+		$response = $this->get("paymentendpoint/ASDFHSADFCACAunknonwhash/complete");
+		$this->assertEquals(302, $response->getStatusCode());
+
+		// modify LastEdited to be just before the allowed interval. This represent valid retry responses from the gateway
+		// i.e. DPS retry after around 1 minute when something goes wrong with the first response.
+		$interval = intval(Config::inst()->get('PaymentGatewayController', 'valid_response_interval_seconds')) + 10;
+		$message = GatewayResponseMessageInventory::get()
+			->filter('ResponseIdentifier', 'ASDFHSADFCACAunknonwhash-complete')
+			->first();
+		$threshold = strtotime("-$interval minutes", SS_Datetime::now()->Format('U'));
+		SS_Datetime::set_mock_now(date("Y-m-d H:i:s", $threshold));
+		$message->write(false, false, true);
+		SS_Datetime::clear_mock_now();
+
+		$response = $this->get("paymentendpoint/ASDFHSADFCACAunknonwhash/complete");
+		$this->assertEquals(302, $response->getStatusCode());
+		
+		// and then an invalid (duplicate) response after a valid retry response
+		$response = $this->get("paymentendpoint/ASDFHSADFCACAunknonwhash/complete");
+		$this->assertEquals(400, $response->getStatusCode());
+	}
+
 	public function testSecurity() {
 		//$this->get(); //mimic mallicious activity
 		//incorrect security token

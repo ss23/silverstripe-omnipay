@@ -22,13 +22,17 @@ class PaymentGatewayController extends Controller{
 	 * @return string                          the resulting redirect url
 	 */
 	public static function get_return_url(GatewayMessage $message, $status = 'complete') {
-		return Director::absoluteURL(
-			Controller::join_links(
-				'paymentendpoint', //as defined in _config/routes.yml
-				$message->Identifier,
-				$status
-			)
+		$returnurl = Controller::join_links(
+			'paymentendpoint', //as defined in _config/routes.yml
+			$message->Identifier,
+			$status
 		);
+
+		if (defined('OMNIPAY_RETURN_URL')) {
+			return OMNIPAY_RETURN_URL . $returnurl;
+		} else {
+			return Director::absoluteURL($returnurl);
+		}
 	}
 
 	/**

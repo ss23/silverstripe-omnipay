@@ -28,7 +28,8 @@ class PaymentGatewayController extends Controller{
 			$status
 		);
 
-		if (defined('OMNIPAY_RETURN_URL')) {
+		// We only want to return the fake URL if it's to the processor directly, not the end user
+		if ($status == 'notify' && defined('OMNIPAY_RETURN_URL')) {
 			return OMNIPAY_RETURN_URL . $returnurl;
 		} else {
 			return Director::absoluteURL($returnurl);
